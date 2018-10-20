@@ -1,17 +1,14 @@
-/**
- * @author Lyn
- * @time 2018.10.16
- */
-package yin.li.second.program;
+package program;
+
 import java.io.*;
 import java.util.Date;
+import java.util.Scanner;
 
 public class Diary {
 	private  FileWriter myFileWriter;
-	private  FileReader myFileReader;
 	private Date date = new Date();
-	private Weather weather = Weather.NULL;
-	private Mood mood = Mood.NULL;
+	private Weather weather;
+	private Mood mood;
 	private String title;
 	private File myDiary;
 	
@@ -22,14 +19,16 @@ public class Diary {
 		this.mood = mood;
 		this.title = title;
 		//新建日记文件
-		String fileName = "D:\\" + date + title + ".txt";
-		myDiary = new File(fileName);
+		String filePath = "D:\\" + title + ".txt";
+		System.out.println(filePath);
+		
+		myDiary = new File(filePath);
 		try {
 			if (!myDiary.exists()) {
 				myDiary.createNewFile();
 			}
 		} catch (Exception e) {
-			System.out.println("新建日记操作出错！");
+			System.out.println("新建日记文件操作出错！");
 			}
 	}
 	public Date getDate() {
@@ -64,27 +63,40 @@ public class Diary {
 		this.title = title;
 	}
 
-	public void getMyDiary() {
+	public String getMyDiary() {
 		try {
-			//按行读取日记
-			this.myFileReader = new FileReader(this.myDiary);
-			BufferedReader reader = new BufferedReader(myFileReader);
-			String tempString = null;  
-			while ((tempString = reader.readLine()) != null) {  
-			    System.out.println(tempString);  
+			InputStream is = new FileInputStream(myDiary);
+			byte[] diary = new byte[(int) myDiary.length()];
+			int i = 0;
+			int index = 0;
+			while ((i = is.read()) != -1) {
+				diary[index] = (byte) i;
+				index++;
 			}
-			myFileReader.close();
-			reader.close();
+			is.close();
+			return new String(diary);
 		} catch (Exception e) {
 			System.out.println("读日记失败,日记不存在");
+			return null;
 		}
 	}
-	public void setMyDiary() {
+	
+	public void setMyDiary(String content) {
+		Scanner in = new Scanner(System.in);
 		try {
 			this.myFileWriter = new FileWriter(this.myDiary, true);
-			
+			myFileWriter.write(content);
+			myFileWriter.close();
 		} catch (Exception e) {
 			System.out.println("写日记失败");
 		}
+	}
+	
+	public String toString() {	
+		return "日期：" + this.date + "/h" + 
+			   "天气：" + this.weather + "/h" +
+			   "心情：" + this.mood + "/h" +
+			   this.title + "/h" + 
+			   this.getMyDiary();
 	}
 }
